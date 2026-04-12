@@ -626,3 +626,141 @@ body {
 
   .options-bar { gap: 0.5rem; padding: 0.75rem; }
 }
+/* ========== TABLE SELECTOR ========== */
+.table-bar {
+  background: var(--white);
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.table-bar-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.table-grid {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.table-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--cream-dark);
+  background: var(--cream);
+  color: var(--brown-mid);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-btn:hover {
+  border-color: var(--accent-light);
+  background: var(--cream-mid);
+  color: var(--brown);
+}
+
+.table-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--white);
+  box-shadow: 0 2px 10px rgba(200,133,58,0.35);
+  transform: scale(1.08);
+}
+
+/* ========== PRODUCTS OVERLAY ========== */
+.products-section {
+  position: relative;
+}
+
+.products-overlay {
+  position: absolute;
+  inset: 0;
+  top: 110px; /* ต่ำกว่า table-bar */
+  background: rgba(250, 246, 240, 0.85);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: var(--radius);
+  transition: opacity 0.2s ease;
+}
+
+.products-overlay.hidden {
+  display: none;
+}
+
+.overlay-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--brown-light);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.overlay-icon {
+  font-size: 3rem;
+}
+
+/* ========== TABLE CHIP in header ========== */
+#tableChip {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ========== CONFIRM TABLE LABEL ========== */
+.confirm-table-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--cream-mid);
+  border-radius: var(--radius-pill);
+  display: inline-block;
+}
+
+/* ========== RECEIPT TABLE ========== */
+.receipt-table {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-top: 0.2rem;
+}
+
+/* ========== MOBILE TABLE BAR ========== */
+@media (max-width: 900px) {
+  .table-bar {
+    gap: 0.6rem;
+  }
+
+  .table-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.88rem;
+  }
+
+  .products-overlay {
+    top: 100px;
+  }
+}
