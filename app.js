@@ -46,7 +46,7 @@ const products = {
 // ==================== State ====================
 let cart = [];
 let orderNumber = 1001;
-let currentCategory = 'coffee';
+let currentCategory = 'kao';
 let selectedTable = null; // โต๊ะที่เลือก
 
 // ==================== DOM ====================
