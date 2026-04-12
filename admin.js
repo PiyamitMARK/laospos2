@@ -21,7 +21,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 
 // ==================== Config ====================
-const ADMIN_USER = 'Mixzaza';
+const ADMIN_USER = 'Admin';
 const ADMIN_PASS = '121212';
 const AUTH_KEY = 'pos2laos-admin-auth';
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCu36zqMJ-qsD0ZiKcxdfnnFOBrHFIprTrR3uaW4_EFzaSw3-hH8mQ0rhlIMkjNsXzSg/exec';
