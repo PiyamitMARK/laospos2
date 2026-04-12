@@ -159,7 +159,7 @@ function renderOrders() {
       <article class="order-card" data-key="${order.firebaseKey}">
         <div class="order-card-header">
           <div class="order-card-header-row">
-            <h3 class="order-card-title">ออเดอร์ #${order.orderNumber}</h3>
+            <h3 class="order-card-title">ออเดอร์ #${order.orderNumber}${order.table ? ` <span class="order-table-chip">โต๊ะ ${order.table}</span>` : ''}</h3>
             <span class="status-badge ${isPending ? 'pending' : 'paid'}">${isPending ? '⏳ รอจ่าย' : '✅ จ่ายแล้ว'}</span>
           </div>
           <div class="order-card-header-row">
