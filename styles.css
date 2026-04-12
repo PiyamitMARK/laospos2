@@ -692,10 +692,11 @@ body {
 
 .products-overlay {
   position: absolute;
-  inset: 0;
-  top: 110px; /* ต่ำกว่า table-bar */
-  background: rgba(250, 246, 240, 0.85);
-  backdrop-filter: blur(3px);
+  left: 0; right: 0; bottom: 0;
+  /* top คำนวณจาก table-bar จริง ผ่าน CSS var ที่ set ใน JS ไม่ได้ — ใช้ trick แทน */
+  top: var(--overlay-top, 130px);
+  background: rgba(250, 246, 240, 0.88);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -751,16 +752,25 @@ body {
 /* ========== MOBILE TABLE BAR ========== */
 @media (max-width: 900px) {
   .table-bar {
-    gap: 0.6rem;
+    gap: 0.5rem;
+    padding: 0.75rem;
   }
+
+  /* ให้ table-grid scroll ในแนวนอนแทนการ wrap — เห็นครบทุกโต๊ะ */
+  .table-grid {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+    flex: 1;
+  }
+  .table-grid::-webkit-scrollbar { display: none; }
 
   .table-btn {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     font-size: 0.88rem;
-  }
-
-  .products-overlay {
-    top: 100px;
+    flex-shrink: 0;
   }
 }
