@@ -79,14 +79,15 @@ const products = {
 let cart = [];
 let orderNumber = 1001;
 let currentCategory = 'coffee';
-let selectedTemp = "เย็น";
-let selectedSweet = "หวานปกติ";
+let selectedTable = null; // โต๊ะที่เลือก
 
 // ==================== DOM ====================
 const currentDateEl = document.getElementById('currentDate');
 const orderNumberEl = document.getElementById('orderNumber');
+const tableChipEl = document.getElementById('tableChip');
 const categoryBtns = document.querySelectorAll('.category-btn');
 const productsGrid = document.getElementById('productsGrid');
+const productsOverlay = document.getElementById('productsOverlay');
 const cartItemsEl = document.getElementById('cartItems');
 const cartEmptyEl = document.getElementById('cartEmpty');
 const totalEl = document.getElementById('total');
@@ -94,12 +95,14 @@ const clearCartBtn = document.getElementById('clearCart');
 const completeOrderBtn = document.getElementById('completeOrder');
 const receiptModal = document.getElementById('receiptModal');
 const receiptOrderNum = document.getElementById('receiptOrderNum');
+const receiptTableEl = document.getElementById('receiptTable');
 const receiptDate = document.getElementById('receiptDate');
 const receiptItemsEl = document.getElementById('receiptItems');
 const receiptTotal = document.getElementById('receiptTotal');
 const printReceiptBtn = document.getElementById('printReceipt');
 const newOrderBtn = document.getElementById('newOrder');
 const confirmOrderModal = document.getElementById('confirmOrderModal');
+const confirmTableLabel = document.getElementById('confirmTableLabel');
 const confirmOrderList = document.getElementById('confirmOrderList');
 const confirmTotal = document.getElementById('confirmTotal');
 const confirmOrderCancel = document.getElementById('confirmOrderCancel');
@@ -116,6 +119,43 @@ function setDate() {
   });
 }
 
+// ==================== Table Selection ====================
+function selectTable(tableNum) {
+  selectedTable = tableNum;
+
+  // อัปเดตปุ่ม
+  document.querySelectorAll('.table-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.table === String(tableNum));
+  });
+
+  // ซ่อน overlay
+  productsOverlay.classList.add('hidden');
+
+  // แสดงเลขโต๊ะใน header
+  tableChipEl.textContent = ` · โต๊ะ ${tableNum}`;
+
+  // ล้างตะกร้าถ้าเปลี่ยนโต๊ะ
+  if (cart.length > 0) {
+    if (confirm(`เปลี่ยนเป็นโต๊ะ ${tableNum} จะล้างรายการในตะกร้า ยืนยันไหม?`)) {
+      cart = [];
+      renderCart();
+    } else {
+      // ยกเลิก — คืนค่าโต๊ะเดิม
+      const prev = cart[0]?.table || null;
+      selectedTable = prev;
+      document.querySelectorAll('.table-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.table === String(prev));
+      });
+      tableChipEl.textContent = prev ? ` · โต๊ะ ${prev}` : '';
+      if (!prev) productsOverlay.classList.remove('hidden');
+    }
+  }
+}
+
+document.querySelectorAll('.table-btn').forEach(btn => {
+  btn.addEventListener('click', () => selectTable(parseInt(btn.dataset.table)));
+});
+
 // ==================== Products ====================
 function renderProducts() {
   productsGrid.innerHTML = (products[currentCategory] || []).map((p) => `
@@ -129,13 +169,16 @@ function renderProducts() {
   `).join('');
 
   productsGrid.querySelectorAll('.product-card').forEach((btn) => {
-    btn.addEventListener('click', () => addToCart(btn.dataset));
+    btn.addEventListener('click', () => {
+      if (!selectedTable) return; // ป้องกันกดสินค้าถ้าไม่เลือกโต๊ะ
+      addToCart(btn.dataset);
+    });
   });
 }
 
 // ==================== Cart ====================
 function addToCart({ id, name, price, image }) {
-  cart.push({ id, name, price: parseFloat(price), qty: 1, image, temp: selectedTemp, sweet: selectedSweet });
+  cart.push({ id, name, price: parseFloat(price), qty: 1, image, table: selectedTable });
   renderCart();
   openCartOnMobile();
 }
@@ -162,7 +205,6 @@ function renderCart() {
       ${item.image ? `<img class="cart-item-img" src="${item.image}" alt="">` : '<span class="cart-item-img-placeholder"></span>'}
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-meta">${item.temp} · ${item.sweet}</div>
         <div class="cart-item-price">${formatMoney(item.price)} × ${item.qty}</div>
       </div>
       <div class="cart-item-qty">
@@ -211,8 +253,9 @@ async function saveOrder() {
   const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
   const order = {
     orderNumber,
+    table: selectedTable,
     date: new Date().toISOString(),
-    items: cart.map((i) => ({ name: i.name, price: i.price, qty: i.qty, temp: i.temp, sweet: i.sweet })),
+    items: cart.map((i) => ({ name: i.name, price: i.price, qty: i.qty })),
     total,
     status: 'pending',
   };
@@ -223,6 +266,7 @@ async function saveOrder() {
 function showReceipt() {
   const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
   receiptOrderNum.textContent = orderNumber;
+  receiptTableEl.textContent = `โต๊ะ ${selectedTable}`;
   receiptDate.textContent = new Date().toLocaleString('th-TH');
   receiptItemsEl.innerHTML = cart.map((i) =>
     `<div class="receipt-item"><span>${i.name} × ${i.qty}</span><span>${formatMoney(i.price * i.qty)}</span></div>`
@@ -238,6 +282,7 @@ function closeReceipt() {
 // ==================== Confirm Modal ====================
 function openConfirmOrderModal() {
   const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  confirmTableLabel.textContent = `โต๊ะ ${selectedTable}`;
   confirmOrderList.innerHTML = cart.map((i) =>
     `<div class="confirm-order-item"><span>${i.name} × ${i.qty}</span><span>${formatMoney(i.price * i.qty)}</span></div>`
   ).join('');
@@ -257,7 +302,12 @@ async function newOrder() {
     orderNumber,
     lastOrderDate: new Date().toISOString().slice(0, 10)
   });
+  // รีเซ็ตโต๊ะและตะกร้า
   cart = [];
+  selectedTable = null;
+  tableChipEl.textContent = '';
+  document.querySelectorAll('.table-btn').forEach(b => b.classList.remove('active'));
+  productsOverlay.classList.remove('hidden');
   renderCart();
   closeReceipt();
 }
@@ -294,6 +344,7 @@ categoryBtns.forEach((btn) => {
 
 clearCartBtn.addEventListener('click', clearCart);
 completeOrderBtn.addEventListener('click', () => {
+  if (!selectedTable) { alert('กรุณาเลือกโต๊ะก่อนครับ'); return; }
   if (cart.length > 0) { closeCartOnMobile(); openConfirmOrderModal(); }
 });
 printReceiptBtn.addEventListener('click', () => window.print());
@@ -307,24 +358,6 @@ confirmOrderOk.addEventListener('click', async () => {
   closeConfirmOrderModal();
   await saveOrder();
   showReceipt();
-});
-
-document.querySelectorAll(".temp-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".temp-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedTemp = btn.dataset.temp;
-    if (cart.length > 0) { cart[cart.length - 1].temp = selectedTemp; renderCart(); }
-  });
-});
-
-document.querySelectorAll(".sweet-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".sweet-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedSweet = btn.dataset.sweet;
-    if (cart.length > 0) { cart[cart.length - 1].sweet = selectedSweet; renderCart(); }
-  });
 });
 
 // ==================== Init ====================
