@@ -102,21 +102,19 @@ function selectTable(tableNum) {
   // แสดงเลขโต๊ะใน header
   tableChipEl.textContent = ` · โต๊ะ ${tableNum}`;
 
-  // ล้างตะกร้าถ้าเปลี่ยนโต๊ะ
-  if (cart.length > 0) {
-    if (confirm(`เปลี่ยนเป็นโต๊ะ ${tableNum} จะล้างรายการในตะกร้า ยืนยันไหม?`)) {
-      cart = [];
-      renderCart();
-    } else {
-      // ยกเลิก — คืนค่าโต๊ะเดิม
-      const prev = cart[0]?.table || null;
-      selectedTable = prev;
-      document.querySelectorAll('.table-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.table === String(prev));
-      });
-      tableChipEl.textContent = prev ? ` · โต๊ะ ${prev}` : '';
-      if (!prev) productsOverlay.classList.remove('hidden');
-    }
+  // render สินค้าทันทีที่เลือกโต๊ะ (แก้บัคเมนูไม่ขึ้น)
+  renderProducts();
+}
+
+// ==================== Overlay positioning ====================
+function updateOverlayTop() {
+  const tableBar = document.querySelector('.table-bar');
+  const section = document.querySelector('.products-section');
+  if (tableBar && section && productsOverlay) {
+    const barBottom = tableBar.getBoundingClientRect().bottom;
+    const sectionTop = section.getBoundingClientRect().top;
+    const offset = barBottom - sectionTop + 8;
+    productsOverlay.style.top = offset + 'px';
   }
 }
 
@@ -148,7 +146,6 @@ function renderProducts() {
 function addToCart({ id, name, price, image }) {
   cart.push({ id, name, price: parseFloat(price), qty: 1, image, table: selectedTable });
   renderCart();
-  openCartOnMobile();
 }
 
 function removeFromCart(index) {
@@ -333,3 +330,5 @@ setDate();
 renderProducts();
 renderCart();
 loadOrderNumber();
+updateOverlayTop();
+window.addEventListener('resize', updateOverlayTop);
