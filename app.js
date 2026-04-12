@@ -36,17 +36,10 @@ const products = {
     { id: 'kao10', name: 'ผัดซีอิ๊ว', price: 60, image: IMG(10) },
   ],
   nam: [
-    { id: 'thai-tea', name: 'ชาไทย', price: 40, image: IMG(1) },
-    { id: 'green-tea', name: 'ชาเขียว', price: 40, image: IMG(10) },
-    { id: 'black-tea', name: 'ชาดำเย็น', price: 40, image: IMG(5) },
-    { id: 'lemon-tea', name: 'ชามะนาว', price: 40, image: IMG(13) },
-    { id: 'pink-milk', name: 'นมชมพู', price: 40, image: IMG(14) },
-    { id: 'cocoa', name: 'โกโก้', price: 40, image: IMG(9) },
-    { id: 'coconut', name: 'มะพร้าวปั่น', price: 45, image: IMG(333) },
+    { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) },
     { id: 'pepsi', name: 'เป็ปซี่', price: 15, image: IMG(80) },
     { id: 'fanta', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
     { id: 'sprite', name: 'สไปร์ท', price: 15, image: IMG(345) },
-    { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) },
   ],
 };
 
