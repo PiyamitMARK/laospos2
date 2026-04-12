@@ -23,7 +23,7 @@ const db = getDatabase(firebaseApp);
 const IMG = (n) => 'images/img' + n + '.png';
 
 const products = {
-  coffee: [
+  kao: [
     { id: 'espresso', name: 'เอสเปรสโซ่', price: 55, image: IMG(12) },
     { id: 'cappuccino', name: 'คาปูชิโน่', price: 55, image: IMG(7) },
     { id: 'latte', name: 'ลาเต้', price: 55, image: IMG(4) },
@@ -36,7 +36,7 @@ const products = {
     { id: 'matcha-latte', name: 'มัทฉะลาเต้', price: 60, image: IMG(3) },
     { id: 'coconut-matcha', name: 'มัทฉะมะพร้าว', price: 60, image: IMG(15) },
   ],
-  namwhan: [
+  nam: [
     { id: 'thai-tea', name: 'ชาไทย', price: 40, image: IMG(1) },
     { id: 'green-tea', name: 'ชาเขียว', price: 40, image: IMG(10) },
     { id: 'black-tea', name: 'ชาดำเย็น', price: 40, image: IMG(5) },
@@ -48,30 +48,6 @@ const products = {
     { id: 'fanta', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
     { id: 'sprite', name: 'สไปร์ท', price: 15, image: IMG(345) },
     { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) },
-  ],
-  kaosoi: [
-    { id: 'soi4', name: 'ข้าวซอยเนื้อ', price: 85, image: IMG(2223) },
-    { id: 'soi2', name: 'ข้าวซอยกระดูกหมู', price: 75, image: IMG(789) },
-    { id: 'soi1', name: 'ข้าวซอยไก่', price: 65, image: IMG(111) },
-    { id: 'soi3', name: 'น้ำเงี้ยว', price: 60, image: IMG(555) },
-    { id: 'soi10', name: 'ไข่', price: 10, image: IMG(1090) },
-  ],
-  kaomutod: [
-    { id: 'kao1', name: 'ข้าวหมูทอด', price: 50, image: IMG(7667) },
-  ],
-  soda: [
-    { id: 'red-lime-soda', name: 'แดงมะนาวโซดา', price: 35, image: IMG(23) },
-    { id: 'blue-hawaii-soda', name: 'บลูฮาวายมะนาวโซดา', price: 35, image: IMG(26) },
-    { id: 'honey-lime-soda', name: 'น้ำผึ้งมะนาวโซดา', price: 35, image: IMG(27) },
-    { id: 'apple-soda', name: 'แอปเปิ้ลโซดา', price: 35, image: IMG(24) },
-    { id: 'orange-soda', name: 'ส้มโซดา', price: 35, image: IMG(25) },
-    { id: 'strawberry-soda', name: 'สตรอเบอร์รี่โซดา', price: 35, image: IMG(30) },
-    { id: 'blueberry-soda', name: 'บลูเบอร์รี่โซดา', price: 35, image: IMG(21) },
-    { id: 'strawberry-yogurt', name: 'สตรอเบอร์รี่โยเกิร์ต', price: 55, image: IMG(16) },
-    { id: 'orange-yogurt', name: 'ส้มโยเกิร์ต', price: 55, image: IMG(17) },
-    { id: 'mango-yogurt', name: 'มะม่วงโยเกิร์ต', price: 55, image: IMG(18) },
-    { id: 'pineapple-yogurt', name: 'สับปะรดโยเกิร์ต', price: 55, image: IMG(19) },
-    { id: 'mix-berry-yogurt', name: 'มิกซ์เบอร์รี่โยเกิร์ต', price: 55, image: IMG(20) },
   ],
 };
 
