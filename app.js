@@ -24,17 +24,16 @@ const IMG = (n) => 'images/img' + n + '.png';
 
 const products = {
   kao: [
-    { id: 'espresso', name: 'เอสเปรสโซ่', price: 55, image: IMG(12) },
-    { id: 'cappuccino', name: 'คาปูชิโน่', price: 55, image: IMG(7) },
-    { id: 'latte', name: 'ลาเต้', price: 55, image: IMG(4) },
-    { id: 'americano', name: 'อเมริกาโน่', price: 45, image: IMG(5) },
-    { id: 'coconut-americano', name: 'อเมริกาโน่มะพร้าว', price: 60, image: IMG(6) },
-    { id: 'honey-americano', name: 'อเมริกาโน่น้ำผึ้ง', price: 55, image: IMG(5) },
-    { id: 'mocha', name: 'มอคค่า', price: 55, image: IMG(12) },
-    { id: 'orange-americano', name: 'อเมริกาโน่ส้ม', price: 60, image: IMG(8) },
-    { id: 'pure-matcha', name: 'เพียวมัทฉะ', price: 55, image: IMG(2) },
-    { id: 'matcha-latte', name: 'มัทฉะลาเต้', price: 60, image: IMG(3) },
-    { id: 'coconut-matcha', name: 'มัทฉะมะพร้าว', price: 60, image: IMG(15) },
+    { id: 'kao1', name: 'กะเพราหมูสับ', price: 55, image: IMG(1) },
+    { id: 'kao2', name: 'กะเพราหมูกรอบ', price: 55, image: IMG(2) },
+    { id: 'kao3', name: 'ข้าวผัดหมู', price: 55, image: IMG(3) },
+    { id: 'kao4', name: 'ข้าวหมูกระเทียม', price: 45, image: IMG(4) },
+    { id: 'kao5', name: 'ข้าวไข่เจียว', price: 60, image: IMG(5) },
+    { id: 'kao6', name: 'ข้าวผัดพริกแกงหมู', price: 55, image: IMG(6) },
+    { id: 'kao7', name: 'ข้าวพะแนง', price: 55, image: IMG(7) },
+    { id: 'kao8', name: 'ข้าวคะน้าหมูกรอบ', price: 60, image: IMG(8) },
+    { id: 'kao9', name: 'ราดหน้า', price: 55, image: IMG(9) },
+    { id: 'kao10', name: 'ผัดซีอิ๊ว', price: 60, image: IMG(10) },
   ],
   nam: [
     { id: 'thai-tea', name: 'ชาไทย', price: 40, image: IMG(1) },
