@@ -24,7 +24,7 @@ const db = getDatabase(firebaseApp);
 const ADMIN_USER = 'Mixzaza';
 const ADMIN_PASS = '121212';
 const AUTH_KEY = 'pos2laos-admin-auth';
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwn1wGVz1ixvjpfdkDnKbCbsQEcM6cld2lw2iU-UEIWKLFCUpztnFRNOS1uSWPIXkSgbw/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-aa_IrOTMzz2e-GfhgCrtwtByI9elmnuEIMjE01kV4OXSDGbmriHB5AU4M6sPmYK1kg/exec';
 
 // ==================== DOM ====================
 const loginScreen = document.getElementById('loginScreen');
