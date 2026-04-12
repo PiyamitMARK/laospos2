@@ -8,13 +8,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getDatabase, ref, update, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyArtz0xjTNBNXbzeZjk-gmafuwszw9ErVk",
-  authDomain: "tea-coffee-pos-23195.firebaseapp.com",
-  databaseURL: "https://tea-coffee-pos-23195-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "tea-coffee-pos-23195",
-  storageBucket: "tea-coffee-pos-23195.firebasestorage.app",
-  messagingSenderId: "58906181234",
-  appId: "1:58906181234:web:6b633330168a619fce8ceb"
+  apiKey: "AIzaSyAOkyKQA3GapMvPRwy4CsiKIb0kz6PvsUg",
+  authDomain: "pos2laos.firebaseapp.com",
+  databaseURL: "https://pos2laos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "pos2laos",
+  storageBucket: "pos2laos.firebasestorage.app",
+  messagingSenderId: "610723590112",
+  appId: "1:610723590112:web:1593c800edca5d8a9c4585"
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
@@ -23,7 +23,7 @@ const db = getDatabase(firebaseApp);
 // ==================== Config ====================
 const ADMIN_USER = 'Mixzaza';
 const ADMIN_PASS = '121212';
-const AUTH_KEY = 'tea-coffee-admin-auth';
+const AUTH_KEY = 'pos2laos-admin-auth';
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwn1wGVz1ixvjpfdkDnKbCbsQEcM6cld2lw2iU-UEIWKLFCUpztnFRNOS1uSWPIXkSgbw/exec';
 
 // ==================== DOM ====================
@@ -42,7 +42,6 @@ const tabRecent = document.getElementById('tabRecent');
 const tabHistory = document.getElementById('tabHistory');
 const historyContent = document.getElementById('historyContent');
 const historyEmpty = document.getElementById('historyEmpty');
-const adminTabs = document.querySelectorAll('.admin-tab');
 const clearDataBtn = document.getElementById('clearDataBtn');
 const clearDataModal = document.getElementById('clearDataModal');
 const clearDataCode = document.getElementById('clearDataCode');
@@ -59,7 +58,6 @@ const dateFrom = document.getElementById('dateFrom');
 const dateTo = document.getElementById('dateTo');
 
 // ==================== State ====================
-// allOrders เก็บเป็น array { firebaseKey, ...orderData }
 let allOrders = [];
 
 // ==================== Auth ====================
@@ -114,7 +112,6 @@ function startRealtimeListener() {
       snapshot.forEach((child) => {
         allOrders.push({ firebaseKey: child.key, ...child.val() });
       });
-      // เรียงจากใหม่ไปเก่า
       allOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
     }
     renderDailySummary();
@@ -123,19 +120,16 @@ function startRealtimeListener() {
   });
 }
 
-// ==================== Firebase: Mark Paid ====================
+// ==================== Firebase: Actions ====================
 async function markOrderAsPaid(firebaseKey) {
   await update(ref(db, `orders/${firebaseKey}`), { status: 'paid' });
-  // onValue จะ trigger render ให้เองอัตโนมัติ
 }
 
-// ==================== Firebase: Delete Order ====================
 async function deleteOrder(firebaseKey, orderNumber) {
   if (!confirm(`ลบออเดอร์ #${orderNumber} ?`)) return;
   await remove(ref(db, `orders/${firebaseKey}`));
 }
 
-// ==================== Firebase: Clear All Orders ====================
 async function clearAllOrders() {
   await remove(ref(db, 'orders'));
   await update(ref(db, 'meta'), { orderNumber: 1001, lastOrderDate: new Date().toISOString().slice(0, 10) });
@@ -195,7 +189,6 @@ function renderOrders() {
   ordersList.querySelectorAll('.btn-paid').forEach((btn) => {
     btn.addEventListener('click', () => markOrderAsPaid(btn.dataset.key));
   });
-
   ordersList.querySelectorAll('.btn-delete').forEach((btn) => {
     btn.addEventListener('click', () => deleteOrder(btn.dataset.key, btn.dataset.num));
   });
