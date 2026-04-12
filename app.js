@@ -7,13 +7,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getDatabase, ref, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyArtz0xjTNBNXbzeZjk-gmafuwszw9ErVk",
-  authDomain: "tea-coffee-pos-23195.firebaseapp.com",
-  databaseURL: "https://tea-coffee-pos-23195-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "tea-coffee-pos-23195",
-  storageBucket: "tea-coffee-pos-23195.firebasestorage.app",
-  messagingSenderId: "58906181234",
-  appId: "1:58906181234:web:6b633330168a619fce8ceb"
+  apiKey: "AIzaSyAOkyKQA3GapMvPRwy4CsiKIb0kz6PvsUg",
+  authDomain: "pos2laos.firebaseapp.com",
+  databaseURL: "https://pos2laos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "pos2laos",
+  storageBucket: "pos2laos.firebasestorage.app",
+  messagingSenderId: "610723590112",
+  appId: "1:610723590112:web:1593c800edca5d8a9c4585"
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
@@ -137,6 +137,7 @@ function renderProducts() {
 function addToCart({ id, name, price, image }) {
   cart.push({ id, name, price: parseFloat(price), qty: 1, image, temp: selectedTemp, sweet: selectedSweet });
   renderCart();
+  openCartOnMobile();
 }
 
 function removeFromCart(index) {
@@ -178,12 +179,8 @@ function renderCart() {
   const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   const badge = document.getElementById('cartBadge');
   if (badge) {
-    if (totalQty > 0) {
-      badge.textContent = totalQty;
-      badge.style.display = 'inline-flex';
-    } else {
-      badge.style.display = 'none';
-    }
+    badge.textContent = totalQty;
+    badge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
   }
 
   totalEl.textContent = formatMoney(cart.reduce((sum, i) => sum + i.price * i.qty, 0));
@@ -201,7 +198,6 @@ async function loadOrderNumber() {
   const meta = metaSnap.exists() ? metaSnap.val() : {};
 
   if (meta.lastOrderDate !== today) {
-    // วันใหม่ — reset เลขออเดอร์
     orderNumber = 1001;
     await update(ref(db, 'meta'), { orderNumber: 1001, lastOrderDate: today });
   } else {
@@ -266,6 +262,25 @@ async function newOrder() {
   closeReceipt();
 }
 
+// ==================== Mobile Cart Toggle ====================
+const cartSection = document.querySelector('.cart-section');
+const cartHeader = document.querySelector('.cart-header');
+
+function isMobile() { return window.innerWidth <= 900; }
+
+if (cartHeader) {
+  cartHeader.addEventListener('click', () => {
+    if (isMobile()) cartSection.classList.toggle('open');
+  });
+}
+
+function openCartOnMobile() {
+  if (isMobile() && cartSection) cartSection.classList.add('open');
+}
+
+function closeCartOnMobile() {
+  if (isMobile() && cartSection) cartSection.classList.remove('open');
+}
 
 // ==================== Event Listeners ====================
 categoryBtns.forEach((btn) => {
@@ -278,7 +293,9 @@ categoryBtns.forEach((btn) => {
 });
 
 clearCartBtn.addEventListener('click', clearCart);
-completeOrderBtn.addEventListener('click', () => { if (cart.length > 0) { closeCartOnMobile(); openConfirmOrderModal(); } });
+completeOrderBtn.addEventListener('click', () => {
+  if (cart.length > 0) { closeCartOnMobile(); openConfirmOrderModal(); }
+});
 printReceiptBtn.addEventListener('click', () => window.print());
 newOrderBtn.addEventListener('click', newOrder);
 
@@ -309,35 +326,6 @@ document.querySelectorAll(".sweet-btn").forEach(btn => {
     if (cart.length > 0) { cart[cart.length - 1].sweet = selectedSweet; renderCart(); }
   });
 });
-
-// ==================== Mobile Cart Toggle ====================
-const cartSection = document.querySelector('.cart-section');
-const cartHeader = document.querySelector('.cart-header');
-
-function isMobile() {
-  return window.innerWidth <= 900;
-}
-
-if (cartHeader) {
-  cartHeader.addEventListener('click', () => {
-    if (isMobile()) {
-      cartSection.classList.toggle('open');
-    }
-  });
-}
-
-// เปิด cart อัตโนมัติเมื่อเพิ่มสินค้า (บน mobile)
-function openCartOnMobile() {
-  if (isMobile() && cartSection) {
-    cartSection.classList.add('open');
-  }
-}
-
-function closeCartOnMobile() {
-  if (isMobile() && cartSection) {
-    cartSection.classList.remove('open');
-  }
-}
 
 // ==================== Init ====================
 setDate();
