@@ -277,26 +277,6 @@ async function newOrder() {
   closeReceipt();
 }
 
-// ==================== Mobile Cart Toggle ====================
-const cartSection = document.querySelector('.cart-section');
-const cartHeader = document.querySelector('.cart-header');
-
-function isMobile() { return window.innerWidth <= 900; }
-
-if (cartHeader) {
-  cartHeader.addEventListener('click', () => {
-    if (isMobile()) cartSection.classList.toggle('open');
-  });
-}
-
-function openCartOnMobile() {
-  if (isMobile() && cartSection) cartSection.classList.add('open');
-}
-
-function closeCartOnMobile() {
-  if (isMobile() && cartSection) cartSection.classList.remove('open');
-}
-
 // ==================== Event Listeners ====================
 categoryBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -308,10 +288,7 @@ categoryBtns.forEach((btn) => {
 });
 
 clearCartBtn.addEventListener('click', clearCart);
-completeOrderBtn.addEventListener('click', () => {
-  if (!selectedTable) { alert('กรุณาเลือกโต๊ะก่อนครับ'); return; }
-  if (cart.length > 0) { closeCartOnMobile(); openConfirmOrderModal(); }
-});
+completeOrderBtn.addEventListener('click', () => { if (cart.length > 0) { closeCartOnMobile(); openConfirmOrderModal(); } });
 printReceiptBtn.addEventListener('click', () => window.print());
 newOrderBtn.addEventListener('click', newOrder);
 
@@ -323,6 +300,173 @@ confirmOrderOk.addEventListener('click', async () => {
   closeConfirmOrderModal();
   await saveOrder();
   showReceipt();
+});
+
+document.querySelectorAll(".temp-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".temp-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedTemp = btn.dataset.temp;
+    if (cart.length > 0) { cart[cart.length - 1].temp = selectedTemp; renderCart(); }
+  });
+});
+
+document.querySelectorAll(".sweet-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".sweet-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedSweet = btn.dataset.sweet;
+    if (cart.length > 0) { cart[cart.length - 1].sweet = selectedSweet; renderCart(); }
+  });
+});
+
+// ==================== Mobile Cart Toggle + Smooth Drag ====================
+const cartSection = document.querySelector('.cart-section');
+const cartHeader = document.querySelector('.cart-header');
+
+const cartBackdrop = document.createElement('div');
+cartBackdrop.className = 'cart-backdrop';
+document.body.appendChild(cartBackdrop);
+
+function isMobile() { return window.innerWidth <= 900; }
+
+// cart เปิดอยู่ที่ translateY(0), ปิดอยู่ที่ translateY(calc(100% - 58px))
+// ใช้ px จริงเพื่อ drag ได้ลื่น
+let cartH = 0;          // ความสูง cart (px)
+let closedOffset = 0;   // offset ตอนปิด (px)
+let currentOffset = 0;  // offset ปัจจุบัน
+let isOpen = false;
+
+function getCartMetrics() {
+  cartH = cartSection.offsetHeight;
+  closedOffset = cartH - 58;
+}
+
+function setOffset(offset, animate = false) {
+  currentOffset = Math.max(0, Math.min(offset, closedOffset));
+  cartSection.style.transition = animate ? 'transform 0.32s cubic-bezier(0.34,1.1,0.64,1)' : 'none';
+  cartSection.style.transform = `translateY(${currentOffset}px)`;
+
+  const progress = 1 - currentOffset / closedOffset;
+  cartBackdrop.style.opacity = Math.max(0, Math.min(progress * 0.5, 0.5));
+  cartBackdrop.style.visibility = currentOffset < closedOffset ? 'visible' : 'hidden';
+  cartBackdrop.style.pointerEvents = currentOffset < closedOffset ? 'auto' : 'none';
+}
+
+function openCart(animate = true) {
+  isOpen = true;
+  setOffset(0, animate);
+  cartSection.classList.add('open');
+}
+
+function closeCart(animate = true) {
+  isOpen = false;
+  getCartMetrics();
+  setOffset(closedOffset, animate);
+  cartSection.classList.remove('open');
+}
+
+function openCartOnMobile() {
+  if (isMobile()) { getCartMetrics(); openCart(); }
+}
+
+function closeCartOnMobile() {
+  if (isMobile()) closeCart();
+}
+
+cartBackdrop.addEventListener('click', () => closeCart());
+
+// ==================== Drag ====================
+let dragStartY = 0;
+let dragStartOffset = 0;
+let isDragging = false;
+let rafId = null;
+let latestY = 0;
+
+function onPointerStart(clientY) {
+  if (!isMobile()) return;
+  getCartMetrics();
+  isDragging = true;
+  dragStartY = clientY;
+  dragStartOffset = currentOffset;
+  cartSection.style.transition = 'none';
+  document.body.style.overflow = 'hidden';
+}
+
+function onPointerMove(clientY) {
+  if (!isDragging) return;
+  latestY = clientY;
+  if (!rafId) {
+    rafId = requestAnimationFrame(() => {
+      const delta = latestY - dragStartY;
+      const newOffset = Math.max(0, Math.min(dragStartOffset + delta, closedOffset));
+      currentOffset = newOffset;
+      cartSection.style.transform = `translateY(${newOffset}px)`;
+      const progress = 1 - newOffset / closedOffset;
+      cartBackdrop.style.opacity = Math.max(0, Math.min(progress * 0.5, 0.5));
+      cartBackdrop.style.visibility = newOffset < closedOffset ? 'visible' : 'hidden';
+      cartBackdrop.style.pointerEvents = newOffset < closedOffset ? 'auto' : 'none';
+      rafId = null;
+    });
+  }
+}
+
+function onPointerEnd(clientY) {
+  if (!isDragging) return;
+  isDragging = false;
+  document.body.style.overflow = '';
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+
+  const delta = clientY - dragStartY;
+  const velocity = delta; // positive = ลงล่าง
+
+  // snap: ถ้าลากลง > 80px หรือ swipe ลงเร็ว → ปิด
+  if (velocity > 80 || currentOffset > closedOffset * 0.5) {
+    closeCart(true);
+  } else {
+    openCart(true);
+  }
+  cartSection.style.pointerEvents = '';
+}
+
+// Touch events
+cartHeader.addEventListener('touchstart', (e) => {
+  onPointerStart(e.touches[0].clientY);
+}, { passive: true });
+
+document.addEventListener('touchmove', (e) => {
+  if (isDragging) onPointerMove(e.touches[0].clientY);
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  onPointerEnd(e.changedTouches[0].clientY);
+});
+
+// Mouse events (สำหรับ desktop preview)
+cartHeader.addEventListener('mousedown', (e) => {
+  onPointerStart(e.clientY);
+  e.preventDefault();
+});
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) onPointerMove(e.clientY);
+});
+document.addEventListener('mouseup', (e) => {
+  if (isDragging) onPointerEnd(e.clientY);
+});
+
+// Tap toggle (ถ้าไม่ได้ drag)
+cartHeader.addEventListener('click', () => {
+  if (!isMobile() || isDragging) return;
+  const didDrag = Math.abs(currentOffset - dragStartOffset) > 5;
+  if (didDrag) return;
+  if (isOpen) closeCart(); else { getCartMetrics(); openCart(); }
+});
+
+// Init offset
+window.addEventListener('load', () => { getCartMetrics(); setOffset(closedOffset); });
+window.addEventListener('resize', () => {
+  getCartMetrics();
+  setOffset(isOpen ? 0 : closedOffset);
 });
 
 // ==================== Init ====================
