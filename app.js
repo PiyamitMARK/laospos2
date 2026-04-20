@@ -23,30 +23,67 @@ const db = getDatabase(firebaseApp);
 const IMG = (n) => 'images/img' + n + '.png';
 
 const products = {
-  kao: [
-    { id: 'kao1', name: 'กะเพราหมูสับ', price: 55, image: IMG(1) },
-    { id: 'kao2', name: 'กะเพราหมูกรอบ', price: 55, image: IMG(2) },
-    { id: 'kao3', name: 'ข้าวผัดหมู', price: 55, image: IMG(3) },
-    { id: 'kao4', name: 'ข้าวหมูกระเทียม', price: 45, image: IMG(4) },
-    { id: 'kao5', name: 'ข้าวไข่เจียว', price: 60, image: IMG(5) },
-    { id: 'kao6', name: 'ข้าวผัดพริกแกงหมู', price: 55, image: IMG(6) },
-    { id: 'kao7', name: 'ข้าวพะแนง', price: 55, image: IMG(7) },
-    { id: 'kao8', name: 'ข้าวคะน้าหมูกรอบ', price: 60, image: IMG(8) },
-    { id: 'kao9', name: 'ราดหน้า', price: 55, image: IMG(9) },
-    { id: 'kao10', name: 'ผัดซีอิ๊ว', price: 60, image: IMG(10) },
+  // ====== เมนูผัด / ເມນູຜັດ ======
+  pad: [
+    { id: 'pad1',  name: 'ຜັດໄວໄວໃສ່ໝູ / ผัดไวไวใส่หมู',          price: 50000, image: IMG(1) },
+    { id: 'pad2',  name: 'ຜັດໄວໄວໃສ່ໄຂ່ / ผัดไวไวใส่ไข่',          price: 50000, image: IMG(2) },
+    { id: 'pad3',  name: 'ຜັດສະປາເກັດຕີ / ผัดสปาเก็ตตี',           price: 65000, image: IMG(3) },
+    { id: 'pad4',  name: 'ລາດໜ້າໝູ / ราดหน้าหมู',                  price: 55000, image: IMG(4) },
+    { id: 'pad5',  name: 'ລາດໜ້າທະເລ / ราดหน้าทะเล',               price: 68000, image: IMG(5) },
+    { id: 'pad6',  name: 'ໄກ່ຜັດຂິງ / ไก่ผัดขิง',                  price: 50000, image: IMG(6) },
+    { id: 'pad7',  name: 'ໄຂ່ຈືນໝູສັບ / ไข่เจียวหมูสับ',            price: 45000, image: IMG(7) },
+    { id: 'pad8',  name: 'ໄຂ່ຈືນກຸ້ງ / ไข่เจียวกุ้ง',              price: 50000, image: IMG(8) },
+    { id: 'pad9',  name: 'ໄຂ່ຕົ້ມ / ไข่ต้ม',                       price: 8000,  image: IMG(9) },
+    { id: 'pad10', name: 'ໄຂ່ລ້ຽວ / ไข่ดาว',                       price: 5000,  image: IMG(10) },
+    { id: 'pad11', name: 'ຜັດພິກແກງປ່າໝູ / ผัดพริกแกงป่าหมู',       price: 75000, image: IMG(11) },
+    { id: 'pad12', name: 'ຜັດພິກແກງປ່າໄກ່ / ผัดพริกแกงป่าไก่',      price: 75000, image: IMG(12) },
+    { id: 'pad13', name: 'ໝູຜັດພິກຫວກ / หมูผัดพริกหยวก',            price: 65000, image: IMG(13) },
+    { id: 'pad14', name: 'ເປີດຜັດພິກເກືອ / เปิดผัดพริกเกลือ',       price: 75000, image: IMG(14) },
+    { id: 'pad15', name: 'ໄຂ່ຍັດໄສ້ (ຈານ) / ไข่ยัดไส้ (จาน)',      price: 65000, image: IMG(15) },
+    { id: 'pad16', name: 'ໄກ່ສັບ (ຈານ) / ไก่สับ (จาน)',             price: 150000, image: IMG(16) },
+    { id: 'pad17', name: 'ໝູແດງ+ໝູກອບ (ຈານ) / หมูแดง+หมูกรอบ (จาน)', price: 150000, image: IMG(17) },
+    { id: 'pad18', name: 'ເປັດຍ່າງ (ຈານ) / เปิดย่าง (จาน)',         price: 150000, image: IMG(18) },
+    { id: 'pad19', name: 'ຂາໝູລ້ວນ (ຈານ) / ขาหมูล้วน (จาน)',       price: 150000, image: IMG(19) },
   ],
+
+  // ====== เมนูข้าว-เจ้า / ເມນູເຂົ້າ-ເຈົ້າ ======
+  khao: [
+    { id: 'khao1',  name: 'ເຂົ້າລາດໝູ / ข้าวหมูแดง',               price: 50000, image: IMG(20) },
+    { id: 'khao2',  name: 'ເຂົ້າຕົ້ມໄກ່ / ข้าวมันไก่ต้ม',           price: 50000, image: IMG(21) },
+    { id: 'khao3',  name: 'ເຂົ້າກະເພາໝູສັບ / ข้าวกระเพราหมูสับ',    price: 50000, image: IMG(22) },
+    { id: 'khao4',  name: 'ເຂົ້າລ້ຽວກຸ້ງ / ข้าวผัดกุ้ง',            price: 50000, image: IMG(23) },
+    { id: 'khao5',  name: 'ເຂົ້າລ້ຽວໝູ / ข้าวผัดหมู',               price: 50000, image: IMG(24) },
+    { id: 'khao6',  name: 'ເຂົ້າໝູແດງ / ข้าวหมูแดง',                price: 50000, image: IMG(25) },
+    { id: 'khao7',  name: 'ເຂົ້າໜ້າເປັດ / ข้าวหน้าเปิด',            price: 50000, image: IMG(26) },
+    { id: 'khao8',  name: 'ເຂົ້າກະເພາໝູກອບ / ข้าวกระเพราหมูกรอบ',  price: 50000, image: IMG(27) },
+    { id: 'khao9',  name: 'ເຂົ້າໄຂ່ຈືນໝູສັບ / ข้าวไข่เจียวหมูสับ',  price: 50000, image: IMG(28) },
+    { id: 'khao10', name: 'ເຂົ້າໜ້າໄກ່ / ข้าวหน้าไก่',              price: 50000, image: IMG(29) },
+    { id: 'khao11', name: 'ເຂົ້າມັນລາດໝູ / ข้าวมันขาหมู',           price: 50000, image: IMG(30) },
+    { id: 'khao12', name: 'ເຂົ້າມັນໜ້າເປັດ / ข้าวมันหน้าเปิด',      price: 50000, image: IMG(31) },
+    { id: 'khao13', name: 'ເຂົ້າກະເພາກຸ້ງ / ข้าวกระเพรากุ้ง',       price: 50000, image: IMG(32) },
+    { id: 'khao14', name: 'ເຂົ້າສວຍ (ເຂົ້າເປົ່າ) / ข้าวเปล่า',      price: 15000, image: IMG(33) },
+  ],
+
+  // ====== เมนูต้ม-ตุ๋ม / ເມນູຕົ້ມ-ຕຸ໋ມ ======
+  tom: [
+    { id: 'tom1', name: 'ຕົ້ມຍຳກຸ້ງ / ต้มยำกุ้ง',                        price: 102000, image: IMG(40) },
+    { id: 'tom2', name: 'ຕົ້ມຂ່າໄກ່ໃສ່ກະທິ / ต้มข่าไก่ใส่กะทิ',          price: 68000,  image: IMG(41) },
+    { id: 'tom3', name: 'ຕົ້ມຈືດສາຫ່າຍເຕົ້າຮູ້ໝູສັບ / ต้มจืดสาหร่ายเต้าหู้หมูสับ', price: 50000, image: IMG(42) },
+  ],
+
+  // ====== น้ำ / ນ້ຳ ======
   nam: [
-    { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) },
-    { id: 'pepsi', name: 'เป็ปซี่', price: 15, image: IMG(80) },
-    { id: 'fanta', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
-    { id: 'sprite', name: 'สไปร์ท', price: 15, image: IMG(345) },
+    { id: 'water',  name: 'ນ້ຳເປົ່າ / น้ำเปล่า',       price: 5000,  image: IMG(60) },
+    { id: 'pepsi',  name: 'ເປັບຊີ / เป็ปซี่',           price: 10000, image: IMG(80) },
+    { id: 'fanta',  name: 'ແຟນຕ້າ / แฟนต้า',            price: 10000, image: IMG(543) },
+    { id: 'sprite', name: 'ສໄປຣ໌ / สไปร์ท',             price: 10000, image: IMG(345) },
   ],
 };
 
 // ==================== State ====================
 let cart = [];
 let orderNumber = 1001;
-let currentCategory = 'kao';
+let currentCategory = 'pad';
 let selectedTable = null; // โต๊ะที่เลือก
 
 // ==================== DOM ====================
@@ -78,7 +115,7 @@ const confirmOrderOk = document.getElementById('confirmOrderOk');
 
 // ==================== Helpers ====================
 function formatMoney(n) {
-  return '฿' + Number(n).toFixed(2);
+  return Number(n).toLocaleString('lo-LA') + ' ກີບ';
 }
 
 function setDate() {
