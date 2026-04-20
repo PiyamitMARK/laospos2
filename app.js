@@ -144,7 +144,12 @@ function renderProducts() {
 
 // ==================== Cart ====================
 function addToCart({ id, name, price, image }) {
-  cart.push({ id, name, price: parseFloat(price), qty: 1, image, table: selectedTable });
+  const existing = cart.find(i => i.id === id);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({ id, name, price: parseFloat(price), qty: 1, image, table: selectedTable });
+  }
   renderCart();
 }
 
@@ -177,9 +182,11 @@ function renderCart() {
         <span class="qty-num">${item.qty}</span>
         <button type="button" class="qty-btn" aria-label="Increase">+</button>
       </div>
+      <button type="button" class="cart-item-remove" aria-label="Remove">✕</button>
     `;
     li.querySelector('.qty-btn:first-child').addEventListener('click', () => updateQty(index, -1));
     li.querySelector('.qty-btn:last-child').addEventListener('click', () => updateQty(index, 1));
+    li.querySelector('.cart-item-remove').addEventListener('click', () => removeFromCart(index));
     cartItemsEl.appendChild(li);
   });
 
