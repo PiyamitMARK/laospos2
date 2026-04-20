@@ -136,7 +136,71 @@ async function clearAllOrders() {
   closeClearDataModal();
 }
 
-// ==================== Render ====================
+// ==================== Products (for admin add-item) ====================
+const ALL_PRODUCTS = [
+  { id: 'kao1', name: 'กะเพราหมูสับ', price: 55 },
+  { id: 'kao2', name: 'กะเพราหมูกรอบ', price: 55 },
+  { id: 'kao3', name: 'ข้าวผัดหมู', price: 55 },
+  { id: 'kao4', name: 'ข้าวหมูกระเทียม', price: 45 },
+  { id: 'kao5', name: 'ข้าวไข่เจียว', price: 60 },
+  { id: 'kao6', name: 'ข้าวผัดพริกแกงหมู', price: 55 },
+  { id: 'kao7', name: 'ข้าวพะแนง', price: 55 },
+  { id: 'kao8', name: 'ข้าวคะน้าหมูกรอบ', price: 60 },
+  { id: 'kao9', name: 'ราดหน้า', price: 55 },
+  { id: 'kao10', name: 'ผัดซีอิ๊ว', price: 60 },
+  { id: 'water', name: 'น้ำเปล่า', price: 10 },
+  { id: 'pepsi', name: 'เป็ปซี่', price: 15 },
+  { id: 'fanta', name: 'น้ำแดงแฟนต้า', price: 15 },
+  { id: 'sprite', name: 'สไปร์ท', price: 15 },
+];
+
+// ==================== Add Item Modal ====================
+let addItemTargetKey = null;
+let addItemTargetOrder = null;
+
+const addItemModal = document.getElementById('addItemModal');
+const addItemProductList = document.getElementById('addItemProductList');
+const addItemCancel = document.getElementById('addItemCancel');
+
+function openAddItemModal(firebaseKey, order) {
+  addItemTargetKey = firebaseKey;
+  addItemTargetOrder = order;
+  addItemProductList.innerHTML = ALL_PRODUCTS.map(p => `
+    <button type="button" class="add-item-product-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
+      <span class="add-item-product-name">${p.name}</span>
+      <span class="add-item-product-price">${formatMoney(p.price)}</span>
+    </button>
+  `).join('');
+  addItemProductList.querySelectorAll('.add-item-product-btn').forEach(btn => {
+    btn.addEventListener('click', () => addItemToOrder(btn.dataset));
+  });
+  addItemModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeAddItemModal() {
+  addItemModal.setAttribute('aria-hidden', 'true');
+  addItemTargetKey = null;
+  addItemTargetOrder = null;
+}
+
+async function addItemToOrder({ id, name, price }) {
+  if (!addItemTargetKey || !addItemTargetOrder) return;
+  const items = [...(addItemTargetOrder.items || [])];
+  const existing = items.find(i => i.name === name);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    items.push({ name, price: parseFloat(price), qty: 1 });
+  }
+  const newTotal = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  await update(ref(db, `orders/${addItemTargetKey}`), { items, total: newTotal });
+  closeAddItemModal();
+}
+
+if (addItemCancel) addItemCancel.addEventListener('click', closeAddItemModal);
+if (addItemModal) addItemModal.addEventListener('click', (e) => { if (e.target === addItemModal) closeAddItemModal(); });
+
+
 function renderDailySummary() {
   const paidToday = allOrders.filter((o) => o.status === 'paid' && isToday(o.date));
   todayOrderCount.textContent = paidToday.length;
@@ -166,6 +230,7 @@ function renderOrders() {
             <span class="order-card-date">${formatDate(order.date)}</span>
             <div class="order-actions">
               ${isPending ? `<button type="button" class="btn-paid" data-key="${order.firebaseKey}">จ่ายแล้ว</button>` : ''}
+              <button type="button" class="btn-add-item" data-key="${order.firebaseKey}">+ เพิ่มเมนู</button>
               <button type="button" class="btn-delete" data-key="${order.firebaseKey}" data-num="${order.orderNumber}">ลบ</button>
             </div>
           </div>
@@ -188,6 +253,12 @@ function renderOrders() {
 
   ordersList.querySelectorAll('.btn-paid').forEach((btn) => {
     btn.addEventListener('click', () => markOrderAsPaid(btn.dataset.key));
+  });
+  ordersList.querySelectorAll('.btn-add-item').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const order = allOrders.find(o => o.firebaseKey === btn.dataset.key);
+      if (order) openAddItemModal(btn.dataset.key, order);
+    });
   });
   ordersList.querySelectorAll('.btn-delete').forEach((btn) => {
     btn.addEventListener('click', () => deleteOrder(btn.dataset.key, btn.dataset.num));
