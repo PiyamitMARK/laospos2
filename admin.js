@@ -162,39 +162,79 @@ const addItemModal = document.getElementById('addItemModal');
 const addItemProductList = document.getElementById('addItemProductList');
 const addItemCancel = document.getElementById('addItemCancel');
 
+// toast message element inside add item modal
+let addItemToast = null;
+
 function openAddItemModal(firebaseKey, order) {
   addItemTargetKey = firebaseKey;
-  addItemTargetOrder = order;
-  addItemProductList.innerHTML = ALL_PRODUCTS.map(p => `
-    <button type="button" class="add-item-product-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
-      <span class="add-item-product-name">${p.name}</span>
-      <span class="add-item-product-price">${formatMoney(p.price)}</span>
-    </button>
-  `).join('');
-  addItemProductList.querySelectorAll('.add-item-product-btn').forEach(btn => {
-    btn.addEventListener('click', () => addItemToOrder(btn.dataset));
-  });
+  addItemTargetOrder = JSON.parse(JSON.stringify(order)); // deep clone เพื่อ track local state
+  renderAddItemList();
   addItemModal.setAttribute('aria-hidden', 'false');
+}
+
+function renderAddItemList() {
+  // นับ qty ที่เพิ่มไปแล้วใน session นี้
+  const currentItems = addItemTargetOrder.items || [];
+
+  addItemProductList.innerHTML = ALL_PRODUCTS.map(p => {
+    const existing = currentItems.find(i => i.name === p.name);
+    const qty = existing ? existing.qty : 0;
+    return `
+      <button type="button" class="add-item-product-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
+        <span class="add-item-product-name">${p.name}</span>
+        <span class="add-item-product-price">${formatMoney(p.price)}</span>
+        ${qty > 0 ? `<span class="add-item-qty-badge">${qty}</span>` : ''}
+      </button>
+    `;
+  }).join('');
+
+  addItemProductList.querySelectorAll('.add-item-product-btn').forEach(btn => {
+    btn.addEventListener('click', () => addItemToOrder(btn.dataset, btn));
+  });
 }
 
 function closeAddItemModal() {
   addItemModal.setAttribute('aria-hidden', 'true');
   addItemTargetKey = null;
   addItemTargetOrder = null;
+  if (addItemToast) { clearTimeout(addItemToast); addItemToast = null; }
+  const toast = document.getElementById('addItemToastMsg');
+  if (toast) toast.textContent = '';
 }
 
-async function addItemToOrder({ id, name, price }) {
+async function addItemToOrder({ name, price }, btnEl) {
   if (!addItemTargetKey || !addItemTargetOrder) return;
-  const items = [...(addItemTargetOrder.items || [])];
+
+  // อัปเดต local state
+  const items = addItemTargetOrder.items || [];
   const existing = items.find(i => i.name === name);
   if (existing) {
     existing.qty += 1;
   } else {
     items.push({ name, price: parseFloat(price), qty: 1 });
   }
-  const newTotal = items.reduce((sum, i) => sum + i.price * i.qty, 0);
-  await update(ref(db, `orders/${addItemTargetKey}`), { items, total: newTotal });
-  closeAddItemModal();
+  addItemTargetOrder.items = items;
+  addItemTargetOrder.total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+  // บันทึก Firebase
+  await update(ref(db, `orders/${addItemTargetKey}`), {
+    items: addItemTargetOrder.items,
+    total: addItemTargetOrder.total,
+  });
+
+  // แสดง toast ข้อความ
+  const toast = document.getElementById('addItemToastMsg');
+  if (toast) {
+    toast.textContent = `✅ เพิ่ม "${name}" แล้ว`;
+    toast.className = 'add-item-toast show';
+    if (addItemToast) clearTimeout(addItemToast);
+    addItemToast = setTimeout(() => {
+      toast.className = 'add-item-toast';
+    }, 2000);
+  }
+
+  // re-render list เพื่ออัปเดต badge qty
+  renderAddItemList();
 }
 
 if (addItemCancel) addItemCancel.addEventListener('click', closeAddItemModal);
