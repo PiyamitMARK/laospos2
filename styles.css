@@ -875,3 +875,32 @@ body {
 
   .date-text { display: none; }
 }
+
+/* ==================== Cart Item Remove Button ==================== */
+.cart-item {
+  position: relative;
+}
+
+.cart-item-remove {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 50%;
+  line-height: 1;
+  transition: background 0.15s, transform 0.15s;
+  margin-left: 2px;
+}
+
+.cart-item-remove:hover {
+  background: #fdecea;
+  transform: scale(1.15);
+}
+
+.cart-item-remove:active {
+  transform: scale(0.95);
+}
