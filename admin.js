@@ -77,7 +77,7 @@ function showScreen(screen) {
 
 // ==================== Helpers ====================
 function formatMoney(n) {
-  return '฿' + Number(n).toFixed(2);
+  return Number(n).toLocaleString('lo-LA') + ' ກີບ';
 }
 
 function formatDate(isoString) {
@@ -138,26 +138,58 @@ async function clearAllOrders() {
 
 // ==================== Products (for admin add-item) ====================
 const ALL_PRODUCTS = [
-  { id: 'kao1',  name: 'กะเพราหมูสับ',      price: 55, category: 'food' },
-  { id: 'kao2',  name: 'กะเพราหมูกรอบ',     price: 55, category: 'food' },
-  { id: 'kao3',  name: 'ข้าวผัดหมู',         price: 55, category: 'food' },
-  { id: 'kao4',  name: 'ข้าวหมูกระเทียม',   price: 45, category: 'food' },
-  { id: 'kao5',  name: 'ข้าวไข่เจียว',       price: 60, category: 'food' },
-  { id: 'kao6',  name: 'ข้าวผัดพริกแกงหมู', price: 55, category: 'food' },
-  { id: 'kao7',  name: 'ข้าวพะแนง',          price: 55, category: 'food' },
-  { id: 'kao8',  name: 'ข้าวคะน้าหมูกรอบ',  price: 60, category: 'food' },
-  { id: 'kao9',  name: 'ราดหน้า',             price: 55, category: 'food' },
-  { id: 'kao10', name: 'ผัดซีอิ๊ว',          price: 60, category: 'food' },
-  { id: 'water', name: 'น้ำเปล่า',            price: 10, category: 'drink' },
-  { id: 'pepsi', name: 'เป็ปซี่',             price: 15, category: 'drink' },
-  { id: 'fanta', name: 'น้ำแดงแฟนต้า',       price: 15, category: 'drink' },
-  { id: 'sprite',name: 'สไปร์ท',             price: 15, category: 'drink' },
+  // ผัด
+  { id: 'pad1',  name: 'ຜັດໄວໄວໃສ່ໝູ / ผัดไวไวใส่หมู',          price: 50000, category: 'pad' },
+  { id: 'pad2',  name: 'ຜັດໄວໄວໃສ່ໄຂ່ / ผัดไวไวใส่ไข่',          price: 50000, category: 'pad' },
+  { id: 'pad3',  name: 'ຜັດສະປາເກັດຕີ / ผัดสปาเก็ตตี',           price: 65000, category: 'pad' },
+  { id: 'pad4',  name: 'ລາດໜ້າໝູ / ราดหน้าหมู',                  price: 55000, category: 'pad' },
+  { id: 'pad5',  name: 'ລາດໜ້າທະເລ / ราดหน้าทะเล',               price: 68000, category: 'pad' },
+  { id: 'pad6',  name: 'ໄກ່ຜັດຂິງ / ไก่ผัดขิง',                  price: 50000, category: 'pad' },
+  { id: 'pad7',  name: 'ໄຂ່ຈືນໝູສັບ / ไข่เจียวหมูสับ',            price: 45000, category: 'pad' },
+  { id: 'pad8',  name: 'ໄຂ່ຈືນກຸ້ງ / ไข่เจียวกุ้ง',              price: 50000, category: 'pad' },
+  { id: 'pad9',  name: 'ໄຂ່ຕົ້ມ / ไข่ต้ม',                       price: 8000,  category: 'pad' },
+  { id: 'pad10', name: 'ໄຂ່ລ້ຽວ / ไข่ดาว',                       price: 5000,  category: 'pad' },
+  { id: 'pad11', name: 'ຜັດພິກແກງປ່າໝູ / ผัดพริกแกงป่าหมู',       price: 75000, category: 'pad' },
+  { id: 'pad12', name: 'ຜັດພິກແກງປ່າໄກ່ / ผัดพริกแกงป่าไก่',      price: 75000, category: 'pad' },
+  { id: 'pad13', name: 'ໝູຜັດພິກຫວກ / หมูผัดพริกหยวก',            price: 65000, category: 'pad' },
+  { id: 'pad14', name: 'ເປີດຜັດພິກເກືອ / เปิดผัดพริกเกลือ',       price: 75000, category: 'pad' },
+  { id: 'pad15', name: 'ໄຂ່ຍັດໄສ້ (ຈານ) / ไข่ยัดไส้ (จาน)',      price: 65000, category: 'pad' },
+  { id: 'pad16', name: 'ໄກ່ສັບ (ຈານ) / ไก่สับ (จาน)',             price: 150000, category: 'pad' },
+  { id: 'pad17', name: 'ໝູແດງ+ໝູກອບ (ຈານ) / หมูแดง+หมูกรอบ (จาน)', price: 150000, category: 'pad' },
+  { id: 'pad18', name: 'ເປັດຍ່າງ (ຈານ) / เปิดย่าง (จาน)',         price: 150000, category: 'pad' },
+  { id: 'pad19', name: 'ຂາໝູລ້ວນ (ຈານ) / ขาหมูล้วน (จาน)',       price: 150000, category: 'pad' },
+  // ข้าว
+  { id: 'khao1',  name: 'ເຂົ້າລາດໝູ / ข้าวหมูแดง',               price: 50000, category: 'khao' },
+  { id: 'khao2',  name: 'ເຂົ້າຕົ້ມໄກ່ / ข้าวมันไก่ต้ม',           price: 50000, category: 'khao' },
+  { id: 'khao3',  name: 'ເຂົ້າກະເພາໝູສັບ / ข้าวกระเพราหมูสับ',    price: 50000, category: 'khao' },
+  { id: 'khao4',  name: 'ເຂົ້າລ້ຽວກຸ້ງ / ข้าวผัดกุ้ง',            price: 50000, category: 'khao' },
+  { id: 'khao5',  name: 'ເຂົ້າລ້ຽວໝູ / ข้าวผัดหมู',               price: 50000, category: 'khao' },
+  { id: 'khao6',  name: 'ເຂົ້າໝູແດງ / ข้าวหมูแดง',                price: 50000, category: 'khao' },
+  { id: 'khao7',  name: 'ເຂົ້າໜ້າເປັດ / ข้าวหน้าเปิด',            price: 50000, category: 'khao' },
+  { id: 'khao8',  name: 'ເຂົ້າກະເພາໝູກອບ / ข้าวกระเพราหมูกรอบ',  price: 50000, category: 'khao' },
+  { id: 'khao9',  name: 'ເຂົ້າໄຂ່ຈືນໝູສັບ / ข้าวไข่เจียวหมูสับ',  price: 50000, category: 'khao' },
+  { id: 'khao10', name: 'ເຂົ້າໜ້າໄກ່ / ข้าวหน้าไก่',              price: 50000, category: 'khao' },
+  { id: 'khao11', name: 'ເຂົ້າມັນລາດໝູ / ข้าวมันขาหมู',           price: 50000, category: 'khao' },
+  { id: 'khao12', name: 'ເຂົ້າມັນໜ້າເປັດ / ข้าวมันหน้าเปิด',      price: 50000, category: 'khao' },
+  { id: 'khao13', name: 'ເຂົ້າກະເພາກຸ້ງ / ข้าวกระเพรากุ้ง',       price: 50000, category: 'khao' },
+  { id: 'khao14', name: 'ເຂົ້າສວຍ (ເຂົ້າເປົ່າ) / ข้าวเปล่า',      price: 15000, category: 'khao' },
+  // ต้ม
+  { id: 'tom1', name: 'ຕົ້ມຍຳກຸ້ງ / ต้มยำกุ้ง',                        price: 102000, category: 'tom' },
+  { id: 'tom2', name: 'ຕົ້ມຂ່າໄກ່ໃສ່ກະທິ / ต้มข่าไก่ใส่กะทิ',          price: 68000,  category: 'tom' },
+  { id: 'tom3', name: 'ຕົ້ມຈືດສາຫ່າຍເຕົ້າຮູ້ໝູສັບ / ต้มจืดสาหร่ายเต้าหู้หมูสับ', price: 50000, category: 'tom' },
+  // น้ำ
+  { id: 'water',  name: 'ນ້ຳເປົ່າ / น้ำเปล่า',       price: 5000,  category: 'drink' },
+  { id: 'pepsi',  name: 'ເປັບຊີ / เป็ปซี่',           price: 10000, category: 'drink' },
+  { id: 'fanta',  name: 'ແຟນຕ້າ / แฟนต้า',            price: 10000, category: 'drink' },
+  { id: 'sprite', name: 'ສໄປຣ໌ / สไปร์ท',             price: 10000, category: 'drink' },
 ];
 
 const ADD_ITEM_CATEGORIES = [
-  { id: 'all',   label: '🍽 ทั้งหมด' },
-  { id: 'food',  label: '🍚 อาหาร' },
-  { id: 'drink', label: '🥤 น้ำ' },
+  { id: 'all',   label: '🍽 ທັງໝົດ' },
+  { id: 'pad',   label: '🥘 ຜັດ/ผัด' },
+  { id: 'khao',  label: '🍚 ເຂົ້າ/ข้าว' },
+  { id: 'tom',   label: '🍲 ຕົ້ມ/ต้ม' },
+  { id: 'drink', label: '🥤 ນ້ຳ/น้ำ' },
 ];
 let addItemActiveCategory = 'all';
 
