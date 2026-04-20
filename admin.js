@@ -138,21 +138,28 @@ async function clearAllOrders() {
 
 // ==================== Products (for admin add-item) ====================
 const ALL_PRODUCTS = [
-  { id: 'kao1', name: 'กะเพราหมูสับ', price: 55 },
-  { id: 'kao2', name: 'กะเพราหมูกรอบ', price: 55 },
-  { id: 'kao3', name: 'ข้าวผัดหมู', price: 55 },
-  { id: 'kao4', name: 'ข้าวหมูกระเทียม', price: 45 },
-  { id: 'kao5', name: 'ข้าวไข่เจียว', price: 60 },
-  { id: 'kao6', name: 'ข้าวผัดพริกแกงหมู', price: 55 },
-  { id: 'kao7', name: 'ข้าวพะแนง', price: 55 },
-  { id: 'kao8', name: 'ข้าวคะน้าหมูกรอบ', price: 60 },
-  { id: 'kao9', name: 'ราดหน้า', price: 55 },
-  { id: 'kao10', name: 'ผัดซีอิ๊ว', price: 60 },
-  { id: 'water', name: 'น้ำเปล่า', price: 10 },
-  { id: 'pepsi', name: 'เป็ปซี่', price: 15 },
-  { id: 'fanta', name: 'น้ำแดงแฟนต้า', price: 15 },
-  { id: 'sprite', name: 'สไปร์ท', price: 15 },
+  { id: 'kao1',  name: 'กะเพราหมูสับ',      price: 55, category: 'food' },
+  { id: 'kao2',  name: 'กะเพราหมูกรอบ',     price: 55, category: 'food' },
+  { id: 'kao3',  name: 'ข้าวผัดหมู',         price: 55, category: 'food' },
+  { id: 'kao4',  name: 'ข้าวหมูกระเทียม',   price: 45, category: 'food' },
+  { id: 'kao5',  name: 'ข้าวไข่เจียว',       price: 60, category: 'food' },
+  { id: 'kao6',  name: 'ข้าวผัดพริกแกงหมู', price: 55, category: 'food' },
+  { id: 'kao7',  name: 'ข้าวพะแนง',          price: 55, category: 'food' },
+  { id: 'kao8',  name: 'ข้าวคะน้าหมูกรอบ',  price: 60, category: 'food' },
+  { id: 'kao9',  name: 'ราดหน้า',             price: 55, category: 'food' },
+  { id: 'kao10', name: 'ผัดซีอิ๊ว',          price: 60, category: 'food' },
+  { id: 'water', name: 'น้ำเปล่า',            price: 10, category: 'drink' },
+  { id: 'pepsi', name: 'เป็ปซี่',             price: 15, category: 'drink' },
+  { id: 'fanta', name: 'น้ำแดงแฟนต้า',       price: 15, category: 'drink' },
+  { id: 'sprite',name: 'สไปร์ท',             price: 15, category: 'drink' },
 ];
+
+const ADD_ITEM_CATEGORIES = [
+  { id: 'all',   label: '🍽 ทั้งหมด' },
+  { id: 'food',  label: '🍚 อาหาร' },
+  { id: 'drink', label: '🥤 น้ำ' },
+];
+let addItemActiveCategory = 'all';
 
 // ==================== Add Item Modal ====================
 let addItemTargetKey = null;
@@ -173,20 +180,34 @@ function openAddItemModal(firebaseKey, order) {
 }
 
 function renderAddItemList() {
-  // นับ qty ที่เพิ่มไปแล้วใน session นี้
   const currentItems = addItemTargetOrder.items || [];
+  const filtered = addItemActiveCategory === 'all'
+    ? ALL_PRODUCTS
+    : ALL_PRODUCTS.filter(p => p.category === addItemActiveCategory);
 
-  addItemProductList.innerHTML = ALL_PRODUCTS.map(p => {
-    const existing = currentItems.find(i => i.name === p.name);
-    const qty = existing ? existing.qty : 0;
-    return `
-      <button type="button" class="add-item-product-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
+  const tabsHtml = `<div class="add-item-cat-tabs">${
+    ADD_ITEM_CATEGORIES.map(cat =>
+      `<button type="button" class="add-item-cat-btn${addItemActiveCategory === cat.id ? ' active' : ''}" data-cat="${cat.id}">${cat.label}</button>`
+    ).join('')
+  }</div>`;
+
+  const productsHtml = `<div class="add-item-product-grid">${
+    filtered.map(p => {
+      const existing = currentItems.find(i => i.name === p.name);
+      const qty = existing ? existing.qty : 0;
+      return `<button type="button" class="add-item-product-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
         <span class="add-item-product-name">${p.name}</span>
         <span class="add-item-product-price">${formatMoney(p.price)}</span>
         ${qty > 0 ? `<span class="add-item-qty-badge">${qty}</span>` : ''}
-      </button>
-    `;
-  }).join('');
+      </button>`;
+    }).join('')
+  }</div>`;
+
+  addItemProductList.innerHTML = tabsHtml + productsHtml;
+
+  addItemProductList.querySelectorAll('.add-item-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => { addItemActiveCategory = btn.dataset.cat; renderAddItemList(); });
+  });
 
   addItemProductList.querySelectorAll('.add-item-product-btn').forEach(btn => {
     btn.addEventListener('click', () => addItemToOrder(btn.dataset, btn));
@@ -197,6 +218,7 @@ function closeAddItemModal() {
   addItemModal.setAttribute('aria-hidden', 'true');
   addItemTargetKey = null;
   addItemTargetOrder = null;
+  addItemActiveCategory = 'all';
   if (addItemToast) { clearTimeout(addItemToast); addItemToast = null; }
   const toast = document.getElementById('addItemToastMsg');
   if (toast) toast.textContent = '';
