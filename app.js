@@ -54,7 +54,7 @@ const products = {
     { id: 'khao4',  name: 'ເຂົ້າລ້ຽວກຸ້ງ / ข้าวผัดกุ้ง',            price: 50000, image: IMG(1023) },
     { id: 'khao5',  name: 'ເຂົ້າລ້ຽວໝູ / ข้าวผัดหมู',               price: 50000, image: IMG(1024) },
     { id: 'khao6',  name: 'ເຂົ້າໝູແດງ / ข้าวหมูแดง',                price: 50000, image: IMG(1025) },
-    { id: 'khao7',  name: 'ເຂົ້າໜ້າເປັດ / ข้าวหน้าเปิด',            price: 50000, image: IMG(1026) },
+    { id: 'khao7',  name: 'ເຂົ້າໜ້າເປັດ / ข้าวหน้าเป็ด',            price: 50000, image: IMG(1026) },
     { id: 'khao8',  name: 'ເຂົ້າກະເພາໝູກອບ / ข้าวกระเพราหมูกรอบ',  price: 50000, image: IMG(1027) },
     { id: 'khao9',  name: 'ເຂົ້າໄຂ່ຈືນໝູສັບ / ข้าวไข่เจียวหมูสับ',  price: 50000, image: IMG(1028) },
     { id: 'khao10', name: 'ເຂົ້າໜ້າໄກ່ / ข้าวหน้าไก่',              price: 50000, image: IMG(1029) },
