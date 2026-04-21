@@ -5,6 +5,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getLang, setLang, T_POS } from "./lang.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAOkyKQA3GapMvPRwy4CsiKIb0kz6PvsUg",
@@ -19,11 +20,9 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 
-// ==================== รูปสินค้า ====================
 const IMG = (n) => 'images/img' + n + '.png';
 
 const products = {
-  // ====== เมนูผัด / ເມນູຜັດ ======
   pad: [
     { id: 'pad1',  name: 'ຜັດໄວໄວໃສ່ໝູ / ผัดไวไวใส่หมู',          price: 50000, image: IMG(1001) },
     { id: 'pad2',  name: 'ຜັດໄວໄວໃສ່ໄຂ່ / ผัดไวไวใส่ไข่',          price: 50000, image: IMG(1002) },
@@ -45,8 +44,6 @@ const products = {
     { id: 'pad18', name: 'ເປັດຍ່າງ (ຈານ) / เป็ดย่าง (จาน)',         price: 150000, image: IMG(1018) },
     { id: 'pad19', name: 'ຂາໝູລ້ວນ (ຈານ) / ขาหมูล้วน (จาน)',       price: 150000, image: IMG(1019) },
   ],
-
-  // ====== เมนูข้าว-เจ้า / ເມນູເຂົ້າ-ເຈົ້າ ======
   khao: [
     { id: 'khao1',  name: 'ເຂົ້າຂາໝູ / ข้าวขาหมู',               price: 50000, image: IMG(1020) },
     { id: 'khao2',  name: 'ເຂົ້າມັນໄກ່ / ข้าวมันไก่',           price: 50000, image: IMG(1021) },
@@ -63,15 +60,11 @@ const products = {
     { id: 'khao13', name: 'ເຂົ້າກະເພາກຸ້ງ / ข้าวกระเพรากุ้ง',       price: 50000, image: IMG(1032) },
     { id: 'khao14', name: 'ເຂົ້າສວຍ (ເຂົ້າເປົ່າ) / ข้าวเปล่า',      price: 15000, image: IMG(1033) },
   ],
-
-  // ====== เมนูต้ม-ตุ๋ม / ເມນູຕົ້ມ-ຕຸ໋ມ ======
   tom: [
     { id: 'tom1', name: 'ຕົ້ມຍຳກຸ້ງ / ต้มยำกุ้ง',                        price: 102000, image: IMG(1034) },
     { id: 'tom2', name: 'ຕົ້ມຂ່າໄກ່ໃສ່ກະທິ / ต้มข่าไก่ใส่กะทิ',          price: 68000,  image: IMG(1035) },
     { id: 'tom3', name: 'ຕົ້ມຈືດສາຫ່າຍເຕົ້າຮູ້ໝູສັບ / ต้มจืดสาหร่ายเต้าหู้หมูสับ', price: 50000, image: IMG(1036) },
   ],
-
-  // ====== น้ำ / ນ້ຳ ======
   nam: [
     { id: 'water',  name: 'ນ້ຳເປົ່າ / น้ำเปล่า',       price: 5000,  image: IMG(1037) },
     { id: 'pepsi',  name: 'ເປັບຊີ / เป็ปซี่',           price: 10000, image: IMG(1038) },
@@ -84,12 +77,10 @@ const products = {
 let cart = [];
 let orderNumber = 1001;
 let currentCategory = 'pad';
-let selectedTable = null; // โต๊ะที่เลือก
+let selectedTable = null;
 
 // ==================== DOM ====================
 const currentDateEl = document.getElementById('currentDate');
-const orderNumberEl = document.getElementById('orderNumber');
-const tableChipEl = document.getElementById('tableChip');
 const categoryBtns = document.querySelectorAll('.category-btn');
 const productsGrid = document.getElementById('productsGrid');
 const productsOverlay = document.getElementById('productsOverlay');
@@ -99,8 +90,6 @@ const totalEl = document.getElementById('total');
 const clearCartBtn = document.getElementById('clearCart');
 const completeOrderBtn = document.getElementById('completeOrder');
 const receiptModal = document.getElementById('receiptModal');
-const receiptOrderNum = document.getElementById('receiptOrderNum');
-const receiptTableEl = document.getElementById('receiptTable');
 const receiptDate = document.getElementById('receiptDate');
 const receiptItemsEl = document.getElementById('receiptItems');
 const receiptTotal = document.getElementById('receiptTotal');
@@ -113,13 +102,95 @@ const confirmTotal = document.getElementById('confirmTotal');
 const confirmOrderCancel = document.getElementById('confirmOrderCancel');
 const confirmOrderOk = document.getElementById('confirmOrderOk');
 
+// ==================== Language ====================
+function tx() { return T_POS[getLang()]; }
+
+function applyLang() {
+  const t = tx();
+  const lang = getLang();
+
+  // Shop name in header
+  const logoEl = document.querySelector('.logo');
+  if (logoEl) logoEl.textContent = t.shopName;
+
+  // Order chip text (preserve the spans inside)
+  const orderLabelEl = document.querySelector('.order-chip');
+  if (orderLabelEl) {
+    const numEl = document.getElementById('orderNumber');
+    const chipEl = document.getElementById('tableChip');
+    const numVal = numEl ? numEl.textContent : orderNumber;
+    const chipVal = chipEl ? chipEl.textContent : '';
+    orderLabelEl.innerHTML = t.orderLabel + '<span id="orderNumber">' + numVal + '</span><span id="tableChip">' + chipVal + '</span>';
+  }
+
+  // Table bar
+  const tableBarLabel = document.querySelector('.table-bar-label');
+  if (tableBarLabel) tableBarLabel.textContent = t.selectTable;
+
+  const overlayMsg = document.querySelector('.overlay-msg span:last-child');
+  if (overlayMsg) overlayMsg.textContent = t.pleaseSelectTable;
+
+  // Category buttons
+  const catTexts = [t.catPad, t.catKhao, t.catTom, t.catNam];
+  categoryBtns.forEach((btn, i) => { if (catTexts[i]) btn.textContent = catTexts[i]; });
+
+  // Cart title
+  const cartTitleEl = document.querySelector('.cart-title');
+  if (cartTitleEl) cartTitleEl.innerHTML = t.cartTitle + ' <span class="cart-badge" id="cartBadge" style="display:none">0</span>';
+
+  // Cart empty
+  const cartEmptySpan = document.querySelector('.cart-empty span:last-child');
+  if (cartEmptySpan) cartEmptySpan.textContent = t.cartEmpty;
+
+  // Total label
+  const totalRowLabel = document.querySelector('.total-row span:first-child');
+  if (totalRowLabel) totalRowLabel.textContent = t.total;
+
+  // Action buttons
+  clearCartBtn.textContent = t.clearCart;
+  completeOrderBtn.textContent = t.completeOrder;
+
+  // Confirm modal
+  const confirmTitleEl = document.querySelector('#confirmOrderModal .modal-title');
+  if (confirmTitleEl) confirmTitleEl.textContent = t.confirmTitle;
+  if (confirmOrderCancel) confirmOrderCancel.textContent = t.confirmCancel;
+  if (confirmOrderOk) confirmOrderOk.textContent = t.confirmOk;
+
+  // Receipt
+  const receiptShopEl = document.querySelector('.receipt-shop');
+  if (receiptShopEl) receiptShopEl.textContent = t.receiptShop;
+  const receiptOrderEl = document.querySelector('.receipt-order');
+  if (receiptOrderEl) {
+    const rNum = document.getElementById('receiptOrderNum');
+    receiptOrderEl.innerHTML = t.receiptOrder + '<span id="receiptOrderNum">' + (rNum ? rNum.textContent : '') + '</span>';
+  }
+  const receiptFooterEl = document.querySelector('.receipt-footer');
+  if (receiptFooterEl) receiptFooterEl.textContent = t.receiptFooter;
+  if (printReceiptBtn) printReceiptBtn.textContent = t.printBtn;
+  if (newOrderBtn) newOrderBtn.textContent = t.newOrderBtn;
+
+  // Lang toggle button
+  const langBtn = document.getElementById('langToggleBtn');
+  if (langBtn) langBtn.textContent = t.langBtn;
+
+  // Update table chip if table already selected
+  if (selectedTable) {
+    const tc = document.getElementById('tableChip');
+    if (tc) tc.textContent = ` · ${lang === 'lo' ? 'ໂຕະ' : 'โต๊ะ'} ${selectedTable}`;
+  }
+
+  renderProducts();
+  renderCart();
+}
+
 // ==================== Helpers ====================
 function formatMoney(n) {
   return Number(n).toLocaleString('lo-LA') + ' ກີບ';
 }
 
 function setDate() {
-  currentDateEl.textContent = new Date().toLocaleDateString('th-TH', {
+  const lang = getLang();
+  currentDateEl.textContent = new Date().toLocaleDateString(lang === 'lo' ? 'lo-LA' : 'th-TH', {
     weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
   });
 }
@@ -127,19 +198,13 @@ function setDate() {
 // ==================== Table Selection ====================
 function selectTable(tableNum) {
   selectedTable = tableNum;
-
-  // อัปเดตปุ่ม
+  const lang = getLang();
   document.querySelectorAll('.table-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.table === String(tableNum));
   });
-
-  // ซ่อน overlay
   productsOverlay.classList.add('hidden');
-
-  // แสดงเลขโต๊ะใน header
-  tableChipEl.textContent = ` · โต๊ะ ${tableNum}`;
-
-  // render สินค้าทันทีที่เลือกโต๊ะ (แก้บัคเมนูไม่ขึ้น)
+  const tc = document.getElementById('tableChip');
+  if (tc) tc.textContent = ` · ${lang === 'lo' ? 'ໂຕະ' : 'โต๊ะ'} ${tableNum}`;
   renderProducts();
 }
 
@@ -170,10 +235,9 @@ function renderProducts() {
       <p class="product-price">${formatMoney(p.price)}</p>
     </button>
   `).join('');
-
   productsGrid.querySelectorAll('.product-card').forEach((btn) => {
     btn.addEventListener('click', () => {
-      if (!selectedTable) return; // ป้องกันกดสินค้าถ้าไม่เลือกโต๊ะ
+      if (!selectedTable) return;
       addToCart(btn.dataset);
     });
   });
@@ -182,18 +246,12 @@ function renderProducts() {
 // ==================== Cart ====================
 function addToCart({ id, name, price, image }) {
   const existing = cart.find(i => i.id === id);
-  if (existing) {
-    existing.qty += 1;
-  } else {
-    cart.push({ id, name, price: parseFloat(price), qty: 1, image, table: selectedTable });
-  }
+  if (existing) { existing.qty += 1; }
+  else { cart.push({ id, name, price: parseFloat(price), qty: 1, image, table: selectedTable }); }
   renderCart();
 }
 
-function removeFromCart(index) {
-  cart.splice(index, 1);
-  renderCart();
-}
+function removeFromCart(index) { cart.splice(index, 1); renderCart(); }
 
 function updateQty(index, delta) {
   cart[index].qty += delta;
@@ -204,7 +262,6 @@ function updateQty(index, delta) {
 function renderCart() {
   cartEmptyEl.style.display = cart.length ? 'none' : 'flex';
   cartItemsEl.querySelectorAll('.cart-item').forEach((el) => el.remove());
-
   cart.forEach((item, index) => {
     const li = document.createElement('li');
     li.className = 'cart-item';
@@ -226,47 +283,37 @@ function renderCart() {
     li.querySelector('.cart-item-remove').addEventListener('click', () => removeFromCart(index));
     cartItemsEl.appendChild(li);
   });
-
   const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   const badge = document.getElementById('cartBadge');
-  if (badge) {
-    badge.textContent = totalQty;
-    badge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
-  }
-
+  if (badge) { badge.textContent = totalQty; badge.style.display = totalQty > 0 ? 'inline-flex' : 'none'; }
   totalEl.textContent = formatMoney(cart.reduce((sum, i) => sum + i.price * i.qty, 0));
 }
 
-function clearCart() {
-  cart = [];
-  renderCart();
-}
+function clearCart() { cart = []; renderCart(); }
 
 // ==================== Firebase: Order Number ====================
 async function loadOrderNumber() {
   const today = new Date().toISOString().slice(0, 10);
   const metaSnap = await get(ref(db, 'meta'));
   const meta = metaSnap.exists() ? metaSnap.val() : {};
-
   if (meta.lastOrderDate !== today) {
     orderNumber = 1001;
     await update(ref(db, 'meta'), { orderNumber: 1001, lastOrderDate: today });
   } else {
     orderNumber = meta.orderNumber || 1001;
   }
-  orderNumberEl.textContent = orderNumber;
+  const numEl = document.getElementById('orderNumber');
+  if (numEl) numEl.textContent = orderNumber;
 }
 
 // ==================== Firebase: Save Order ====================
 async function saveOrder() {
   const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
   const order = {
-    orderNumber,
-    table: selectedTable,
+    orderNumber, table: selectedTable,
     date: new Date().toISOString(),
     items: cart.map((i) => ({ name: i.name, price: i.price, qty: i.qty })),
-    total,
-    status: 'pending',
+    total, status: 'pending',
   };
   await push(ref(db, 'orders'), order);
 }
@@ -274,9 +321,12 @@ async function saveOrder() {
 // ==================== Receipt ====================
 function showReceipt() {
   const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  receiptOrderNum.textContent = orderNumber;
-  receiptTableEl.textContent = `โต๊ะ ${selectedTable}`;
-  receiptDate.textContent = new Date().toLocaleString('th-TH');
+  const lang = getLang();
+  const rNum = document.getElementById('receiptOrderNum');
+  if (rNum) rNum.textContent = orderNumber;
+  receiptDate.textContent = new Date().toLocaleString(lang === 'lo' ? 'lo-LA' : 'th-TH');
+  const receiptTableEl = document.getElementById('receiptTable');
+  if (receiptTableEl) receiptTableEl.textContent = lang === 'lo' ? `ໂຕະ ${selectedTable}` : `โต๊ะ ${selectedTable}`;
   receiptItemsEl.innerHTML = cart.map((i) =>
     `<div class="receipt-item"><span>${i.name} × ${i.qty}</span><span>${formatMoney(i.price * i.qty)}</span></div>`
   ).join('');
@@ -284,37 +334,33 @@ function showReceipt() {
   receiptModal.setAttribute('aria-hidden', 'false');
 }
 
-function closeReceipt() {
-  receiptModal.setAttribute('aria-hidden', 'true');
-}
+function closeReceipt() { receiptModal.setAttribute('aria-hidden', 'true'); }
 
 // ==================== Confirm Modal ====================
 function openConfirmOrderModal() {
   const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  confirmTableLabel.textContent = `โต๊ะ ${selectedTable}`;
+  const lang = getLang();
+  confirmTableLabel.textContent = lang === 'lo' ? `ໂຕະ ${selectedTable}` : `โต๊ะ ${selectedTable}`;
   confirmOrderList.innerHTML = cart.map((i) =>
     `<div class="confirm-order-item"><span>${i.name} × ${i.qty}</span><span>${formatMoney(i.price * i.qty)}</span></div>`
   ).join('');
-  confirmTotal.innerHTML = `<span>รวมทั้งหมด</span><span>${formatMoney(total)}</span>`;
+  const totalLbl = lang === 'lo' ? 'ລວມທັງໝົດ' : 'รวมทั้งหมด';
+  confirmTotal.innerHTML = `<span>${totalLbl}</span><span>${formatMoney(total)}</span>`;
   confirmOrderModal.setAttribute('aria-hidden', 'false');
 }
 
-function closeConfirmOrderModal() {
-  confirmOrderModal.setAttribute('aria-hidden', 'true');
-}
+function closeConfirmOrderModal() { confirmOrderModal.setAttribute('aria-hidden', 'true'); }
 
 // ==================== New Order ====================
 async function newOrder() {
   orderNumber += 1;
-  orderNumberEl.textContent = orderNumber;
-  await update(ref(db, 'meta'), {
-    orderNumber,
-    lastOrderDate: new Date().toISOString().slice(0, 10)
-  });
-  // รีเซ็ตโต๊ะและตะกร้า
+  const numEl = document.getElementById('orderNumber');
+  if (numEl) numEl.textContent = orderNumber;
+  await update(ref(db, 'meta'), { orderNumber, lastOrderDate: new Date().toISOString().slice(0, 10) });
   cart = [];
   selectedTable = null;
-  tableChipEl.textContent = '';
+  const tc = document.getElementById('tableChip');
+  if (tc) tc.textContent = '';
   document.querySelectorAll('.table-btn').forEach(b => b.classList.remove('active'));
   productsOverlay.classList.remove('hidden');
   renderCart();
@@ -335,108 +381,57 @@ clearCartBtn.addEventListener('click', clearCart);
 completeOrderBtn.addEventListener('click', () => { if (cart.length > 0) { closeCartOnMobile(); openConfirmOrderModal(); } });
 printReceiptBtn.addEventListener('click', () => window.print());
 newOrderBtn.addEventListener('click', newOrder);
-
 confirmOrderCancel.addEventListener('click', closeConfirmOrderModal);
 confirmOrderModal.addEventListener('click', (e) => { if (e.target === confirmOrderModal) closeConfirmOrderModal(); });
 receiptModal.addEventListener('click', (e) => { if (e.target === receiptModal) closeReceipt(); });
+confirmOrderOk.addEventListener('click', async () => { closeConfirmOrderModal(); await saveOrder(); showReceipt(); });
 
-confirmOrderOk.addEventListener('click', async () => {
-  closeConfirmOrderModal();
-  await saveOrder();
-  showReceipt();
-});
-
-document.querySelectorAll(".temp-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".temp-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedTemp = btn.dataset.temp;
-    if (cart.length > 0) { cart[cart.length - 1].temp = selectedTemp; renderCart(); }
+// ==================== Lang Toggle ====================
+const langToggleBtn = document.getElementById('langToggleBtn');
+if (langToggleBtn) {
+  langToggleBtn.addEventListener('click', () => {
+    const newLang = getLang() === 'th' ? 'lo' : 'th';
+    setLang(newLang);
+    applyLang();
+    setDate();
   });
-});
-
-document.querySelectorAll(".sweet-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".sweet-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedSweet = btn.dataset.sweet;
-    if (cart.length > 0) { cart[cart.length - 1].sweet = selectedSweet; renderCart(); }
-  });
-});
+}
 
 // ==================== Mobile Cart Toggle + Smooth Drag ====================
 const cartSection = document.querySelector('.cart-section');
 const cartHeader = document.querySelector('.cart-header');
-
 const cartBackdrop = document.createElement('div');
 cartBackdrop.className = 'cart-backdrop';
 document.body.appendChild(cartBackdrop);
 
 function isMobile() { return window.innerWidth <= 900; }
+let cartH = 0, closedOffset = 0, currentOffset = 0, isOpen = false;
 
-// cart เปิดอยู่ที่ translateY(0), ปิดอยู่ที่ translateY(calc(100% - 58px))
-// ใช้ px จริงเพื่อ drag ได้ลื่น
-let cartH = 0;          // ความสูง cart (px)
-let closedOffset = 0;   // offset ตอนปิด (px)
-let currentOffset = 0;  // offset ปัจจุบัน
-let isOpen = false;
-
-function getCartMetrics() {
-  cartH = cartSection.offsetHeight;
-  closedOffset = cartH - 58;
-}
+function getCartMetrics() { cartH = cartSection.offsetHeight; closedOffset = cartH - 58; }
 
 function setOffset(offset, animate = false) {
   currentOffset = Math.max(0, Math.min(offset, closedOffset));
   cartSection.style.transition = animate ? 'transform 0.32s cubic-bezier(0.34,1.1,0.64,1)' : 'none';
   cartSection.style.transform = `translateY(${currentOffset}px)`;
-
   const progress = 1 - currentOffset / closedOffset;
   cartBackdrop.style.opacity = Math.max(0, Math.min(progress * 0.5, 0.5));
   cartBackdrop.style.visibility = currentOffset < closedOffset ? 'visible' : 'hidden';
   cartBackdrop.style.pointerEvents = currentOffset < closedOffset ? 'auto' : 'none';
 }
 
-function openCart(animate = true) {
-  isOpen = true;
-  setOffset(0, animate);
-  cartSection.classList.add('open');
-}
-
-function closeCart(animate = true) {
-  isOpen = false;
-  getCartMetrics();
-  setOffset(closedOffset, animate);
-  cartSection.classList.remove('open');
-}
-
-function openCartOnMobile() {
-  if (isMobile()) { getCartMetrics(); openCart(); }
-}
-
-function closeCartOnMobile() {
-  if (isMobile()) closeCart();
-}
-
+function openCart(animate = true) { isOpen = true; setOffset(0, animate); cartSection.classList.add('open'); }
+function closeCart(animate = true) { isOpen = false; getCartMetrics(); setOffset(closedOffset, animate); cartSection.classList.remove('open'); }
+function openCartOnMobile() { if (isMobile()) { getCartMetrics(); openCart(); } }
+function closeCartOnMobile() { if (isMobile()) closeCart(); }
 cartBackdrop.addEventListener('click', () => closeCart());
 
-// ==================== Drag ====================
-let dragStartY = 0;
-let dragStartOffset = 0;
-let isDragging = false;
-let rafId = null;
-let latestY = 0;
+let dragStartY = 0, dragStartOffset = 0, isDragging = false, rafId = null, latestY = 0;
 
 function onPointerStart(clientY) {
   if (!isMobile()) return;
-  getCartMetrics();
-  isDragging = true;
-  dragStartY = clientY;
-  dragStartOffset = currentOffset;
-  cartSection.style.transition = 'none';
-  document.body.style.overflow = 'hidden';
+  getCartMetrics(); isDragging = true; dragStartY = clientY; dragStartOffset = currentOffset;
+  cartSection.style.transition = 'none'; document.body.style.overflow = 'hidden';
 }
-
 function onPointerMove(clientY) {
   if (!isDragging) return;
   latestY = clientY;
@@ -454,67 +449,33 @@ function onPointerMove(clientY) {
     });
   }
 }
-
 function onPointerEnd(clientY) {
   if (!isDragging) return;
-  isDragging = false;
-  document.body.style.overflow = '';
+  isDragging = false; document.body.style.overflow = '';
   if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-
   const delta = clientY - dragStartY;
-  const velocity = delta; // positive = ลงล่าง
-
-  // snap: ถ้าลากลง > 80px หรือ swipe ลงเร็ว → ปิด
-  if (velocity > 80 || currentOffset > closedOffset * 0.5) {
-    closeCart(true);
-  } else {
-    openCart(true);
-  }
+  if (delta > 80 || currentOffset > closedOffset * 0.5) closeCart(true); else openCart(true);
   cartSection.style.pointerEvents = '';
 }
 
-// Touch events
-cartHeader.addEventListener('touchstart', (e) => {
-  onPointerStart(e.touches[0].clientY);
-}, { passive: true });
-
-document.addEventListener('touchmove', (e) => {
-  if (isDragging) onPointerMove(e.touches[0].clientY);
-}, { passive: true });
-
-document.addEventListener('touchend', (e) => {
-  onPointerEnd(e.changedTouches[0].clientY);
-});
-
-// Mouse events (สำหรับ desktop preview)
-cartHeader.addEventListener('mousedown', (e) => {
-  onPointerStart(e.clientY);
-  e.preventDefault();
-});
-document.addEventListener('mousemove', (e) => {
-  if (isDragging) onPointerMove(e.clientY);
-});
-document.addEventListener('mouseup', (e) => {
-  if (isDragging) onPointerEnd(e.clientY);
-});
-
-// Tap toggle (ถ้าไม่ได้ drag)
+cartHeader.addEventListener('touchstart', (e) => { onPointerStart(e.touches[0].clientY); }, { passive: true });
+document.addEventListener('touchmove', (e) => { if (isDragging) onPointerMove(e.touches[0].clientY); }, { passive: true });
+document.addEventListener('touchend', (e) => { onPointerEnd(e.changedTouches[0].clientY); });
+cartHeader.addEventListener('mousedown', (e) => { onPointerStart(e.clientY); e.preventDefault(); });
+document.addEventListener('mousemove', (e) => { if (isDragging) onPointerMove(e.clientY); });
+document.addEventListener('mouseup', (e) => { if (isDragging) onPointerEnd(e.clientY); });
 cartHeader.addEventListener('click', () => {
   if (!isMobile() || isDragging) return;
-  const didDrag = Math.abs(currentOffset - dragStartOffset) > 5;
-  if (didDrag) return;
+  if (Math.abs(currentOffset - dragStartOffset) > 5) return;
   if (isOpen) closeCart(); else { getCartMetrics(); openCart(); }
 });
 
-// Init offset
 window.addEventListener('load', () => { getCartMetrics(); setOffset(closedOffset); });
-window.addEventListener('resize', () => {
-  getCartMetrics();
-  setOffset(isOpen ? 0 : closedOffset);
-});
+window.addEventListener('resize', () => { getCartMetrics(); setOffset(isOpen ? 0 : closedOffset); });
 
 // ==================== Init ====================
 setDate();
+applyLang();
 renderProducts();
 renderCart();
 loadOrderNumber();
