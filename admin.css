@@ -703,11 +703,15 @@ body {
   border-radius: var(--radius-sm);
   padding: 0.3rem;
   margin-bottom: 0.75rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.add-item-cat-tabs::-webkit-scrollbar { display: none; }
 
 .add-item-cat-btn {
-  flex: 1;
-  padding: 0.45rem 0.5rem;
+  flex: 0 0 auto;
+  padding: 0.45rem 0.75rem;
   font-family: inherit;
   font-size: 0.85rem;
   font-weight: 600;
