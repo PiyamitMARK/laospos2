@@ -904,3 +904,25 @@ body {
 .cart-item-remove:active {
   transform: scale(0.95);
 }
+
+/* ==================== Lang Toggle Button ==================== */
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 2px solid var(--accent, #c8853a);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent, #c8853a);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.lang-btn:hover {
+  background: var(--accent, #c8853a);
+  color: #fff;
+}
