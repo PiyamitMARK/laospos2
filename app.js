@@ -270,6 +270,12 @@ async function saveOrder() {
     status: 'pending',
   };
   await push(ref(db, 'orders'), order);
+  // อัปเดต orderNumber ใน Firebase ทันทีหลังบันทึก
+  // เพื่อให้ทุกเครื่องเห็น orderNumber ปัจจุบันถูกต้อง
+  await update(ref(db, 'meta'), {
+    orderNumber,
+    lastOrderDate: new Date().toISOString().slice(0, 10),
+  });
 }
 
 // ==================== Receipt ====================
